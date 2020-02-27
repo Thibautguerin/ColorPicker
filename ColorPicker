@@ -1,0 +1,133 @@
+#!/usr/bin/python3
+
+from math import *
+from random import *
+import os
+import contextlib
+with contextlib.redirect_stdout(None):
+	import pygame
+	import pygame.gfxdraw
+	from pygame import *
+from drawRect import *
+from drawText import *
+from clic import *
+
+resolution = [1280, 720]
+
+def choice_color(window, color):
+	x = 0;
+	y = 0;
+	r = color[0]
+	g = color[1]
+	b = color[2]
+	save_r = r
+	save_g = g
+	save_b = b
+	dominant = 0
+	if (r == 255):
+		dominant = 1
+	elif (g == 255):
+		dominant = 2
+	else:
+		dominant = 3
+	limit = 0
+	while (y < 256):
+		if (dominant == 1):
+			limit = r
+		elif (dominant == 2):
+			limit = g
+		else:
+			limit = b
+		while (x < 256):
+			if (r < limit):
+				r = r + (limit - r)/(255 - x)
+			if (g < limit):
+				g = g + (limit - g)/(255 - x)
+			if (b < limit):
+				b = b + (limit - b)/(255 - x)
+			displayRect(window, (resolution[0] / 2 - 255 + x, resolution[1] / 2 - 80 + y, 1, 1), (int(r), int(g), int(b)))
+			x = x + 1
+		x = 0
+		if (save_r > 0):
+			save_r = save_r - (save_r / (255 - y))
+		if (save_g > 0):
+			save_g = save_g - (save_g / (255 - y))
+		if (save_b > 0):
+			save_b = save_b - (save_b / (255 - y))
+		y = y + 1
+		r = save_r
+		g = save_g
+		b = save_b
+
+def main():
+	running = True
+
+	pygame.init()
+	pygame.display.set_caption("NAME")
+	window = pygame.display.set_mode((1280, 720), RESIZABLE)
+	
+	window.fill((30, 30, 30))
+	pygame.display.update()
+	
+	myfont = pygame.font.SysFont("monospace", 50, True)
+	x = 0
+	
+	pos_bar = (resolution[0] / 2 - 261, resolution[1] / 2 - 180, 13, 90)
+	pos_circle_x = int(resolution[0] / 2 - 255)
+	pos_circle_y = int(resolution[1] / 2 - 80)
+	color_bar = (255, 0, 0)
+	color_circle = (255, 0, 0)
+
+	image = pygame.image.load("rainbow.png")
+	
+	mouse_pos = pygame.mouse.get_pos()
+
+	window.blit(image, (resolution[0] / 2 - 255, resolution[1] / 2 - 175))
+	choice_color(window, color_bar)
+	displayRect(window, (resolution[0] / 2 + 15, resolution[1] / 2 - 80, 235, 255), color_circle)
+	displayRect(window, pos_bar, (255, 255, 255), 3, False, 3, (0, 0, 0, 0))
+	pygame.gfxdraw.circle(window, pos_circle_x, pos_circle_y, 7, (255, 255, 255))
+	pygame.gfxdraw.aacircle(window, pos_circle_x, pos_circle_y, 6, (255, 255, 255))
+	pygame.gfxdraw.circle(window, pos_circle_x, pos_circle_y, 5, (255, 255, 255))
+
+	while (running):
+		mouse_pos = pygame.mouse.get_pos()
+		if (mouse_pos[0] > resolution[0] / 2 - 255 and mouse_pos[0] < resolution[0] / 2 + 255 and mouse_pos[1] > resolution[1] / 2 - 175 and mouse_pos[1] < resolution[1] / 2 - 95):
+			if (pygame.mouse.get_pressed()[0]):
+				displayRect(window, (resolution[0] / 2 - 305, resolution[1] / 2 - 225, 604, 450), (33, 33, 33), 20)
+				window.blit(image, (resolution[0] / 2 - 255, resolution[1] / 2 - 175))
+				choice_color(window, window.get_at((mouse_pos[0], mouse_pos[1])))
+				color_bar = window.get_at((mouse_pos[0], mouse_pos[1]))
+				color_circle = color_bar
+				pos_bar = (mouse_pos[0], resolution[1] / 2 - 180, 13, 90)
+				displayRect(window, (resolution[0] / 2 + 15, resolution[1] / 2 - 80, 235, 255), window.get_at((pos_circle_x, pos_circle_y)))
+				displayRect(window, pos_bar, (255, 255, 255), 3, False, 3, (0, 0, 0, 0))
+				pygame.gfxdraw.circle(window, pos_circle_x, pos_circle_y, 7, (255, 255, 255))
+				pygame.gfxdraw.aacircle(window, pos_circle_x, pos_circle_y, 6, (255, 255, 255))
+				pygame.gfxdraw.circle(window, pos_circle_x, pos_circle_y, 5, (255, 255, 255))
+		if (mouse_pos[0] > resolution[0] / 2 - 255 and mouse_pos[0] < resolution[0] / 2 and mouse_pos[1] > resolution[1] / 2 - 80 and mouse_pos[1] < resolution[1] / 2 + 175):
+			if (pygame.mouse.get_pressed()[0]):
+				displayRect(window, (resolution[0] / 2 - 305, resolution[1] / 2 - 225, 604, 450), (33, 33, 33), 20)
+				choice_color(window, color_bar)
+				color_circle = window.get_at((mouse_pos[0], mouse_pos[1]))
+				pos_circle_x = mouse_pos[0]
+				pos_circle_y = mouse_pos[1]
+				window.blit(image, (resolution[0] / 2 - 255, resolution[1] / 2 - 175))
+				displayRect(window, (resolution[0] / 2 + 15, resolution[1] / 2 - 80, 235, 255), window.get_at((mouse_pos[0], mouse_pos[1])))
+				displayRect(window, pos_bar, (255, 255, 255), 3, False, 3, (0, 0, 0, 0))
+				pygame.gfxdraw.circle(window, pos_circle_x, pos_circle_y, 7, (255, 255, 255))
+				pygame.gfxdraw.aacircle(window, pos_circle_x, pos_circle_y, 6, (255, 255, 255))
+				pygame.gfxdraw.circle(window, pos_circle_x, pos_circle_y, 5, (255, 255, 255))
+
+		pygame.display.update()
+
+		for event in pygame.event.get():
+			if (event.type == QUIT):
+				return (False)
+			if (event.type == KEYDOWN):
+				if (event.key == K_ESCAPE):
+					running = False
+		
+	pygame.quit()
+
+main()
